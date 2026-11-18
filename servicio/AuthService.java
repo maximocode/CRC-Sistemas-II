@@ -10,9 +10,6 @@ public class AuthService {
     private List<Usuario> usuariosRegistrados = new ArrayList<>();
     private long secuenciaId = 1L;
 
-    /**
-     * CU_2: Registrarse (incluye CU_1A y CU_2A: Validar Usuario)
-     */
     public Usuario registrarUsuario(String nombre, String apellido, String email, 
                                     String telefono, String password, String confirmacionPassword) {
         validarDatosRegistro(nombre, apellido, email, password, confirmacionPassword);
@@ -24,9 +21,6 @@ public class AuthService {
         return nuevo;
     }
 
-    /**
-     * CU_1: Iniciar Sesión (Local) - incluye CU_1A y CU_2A: Validar Usuario
-     */
     public Usuario iniciarSesion(String email, String password) {
         if (email == null || password == null || email.isBlank() || password.isBlank()) {
             throw new IllegalArgumentException("Debe ingresar correo y contraseña.");
@@ -43,9 +37,6 @@ public class AuthService {
         throw new SecurityException("Credenciales inválidas o cuenta inactiva.");
     }
 
-    /**
-     * CU_1 / CU_2 alternativo: Continuar con Google (/api/v1/auth/google)
-     */
     public Usuario autenticarConGoogle(String nombre, String apellido, String email) {
         Optional<Usuario> existente = usuariosRegistrados.stream()
                 .filter(u -> u.getEmail().equalsIgnoreCase(email))
@@ -63,9 +54,6 @@ public class AuthService {
         return usuario;
     }
 
-    /**
-     * CU_1A y CU_2A: Validar Usuario (<<include>>)
-     */
     private void validarDatosRegistro(String nombre, String apellido, String email, 
                                       String pass, String confirmPass) {
         if (nombre == null || nombre.isBlank() || apellido == null || apellido.isBlank()) {
