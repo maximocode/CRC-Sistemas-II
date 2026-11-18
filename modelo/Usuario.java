@@ -39,7 +39,7 @@ public class Usuario {
         return nombre + " " + apellido;
     }
 
-    // Accessors y Mutators
+    
     public Long getIdUsuario() { return idUsuario; }
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }

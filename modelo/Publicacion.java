@@ -31,10 +31,7 @@ public class Publicacion {
         this.reportes = new ArrayList<>();
     }
 
-    /**
-     * Comportamiento de detalle.html?id=X:
-     * Solo muestra contacto si el visitante inició sesión.
-     */
+    
     public String consultarDatosContacto(Usuario usuarioVisitante) {
         if (usuarioVisitante != null && usuarioVisitante.isSesionIniciada()) {
             return "Publicador: " + autor.getNombreCompleto() +
@@ -55,7 +52,7 @@ public class Publicacion {
         this.estado = EstadoPublicacion.CERRADA;
     }
 
-    // Accessors
+    
     public Long getIdPublicacion() { return idPublicacion; }
     public TipoPublicacion getTipo() { return tipo; }
     public EstadoPublicacion getEstado() { return estado; }
