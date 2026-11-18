@@ -19,9 +19,6 @@ public class Aviso {
         this.mascota = mascota;
     }
 
-    /**
-     * Devuelve los datos de contacto solo si el usuario que consulta está autenticado.
-     */
     public String obtenerDatosContacto(Usuario solicitante) {
         if (solicitante != null && solicitante.isAutenticado()) {
             return "Contacto: " + autor.getNombre() + " | Tel: " + autor.getTelefono() + " | Email: " + autor.getEmail();
@@ -34,7 +31,6 @@ public class Aviso {
         this.mascota.setEstado(EstadoMascota.REUNIDA);
     }
 
-    // Accessors
     public String getIdAviso() { return idAviso; }
     public TipoAviso getTipo() { return tipo; }
     public String getUbicacion() { return ubicacion; }
