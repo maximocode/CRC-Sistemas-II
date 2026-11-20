@@ -2,28 +2,29 @@ package modelo;
 
 import java.time.LocalDateTime;
 
-public class CoincidenciaIA {
+ public class CoincidenciaIA {
     private Long idCoincidencia;
-    private Publicacion publicacionPerdida;
-    private Publicacion publicacionEncontrada;
+    private PublicacionPerdido publicacionPerdida;
+    private PublicacionEncontrado publicacionEncontrada;
     private double porcentajeSimilitud;
-    private LocalDateTime fechaDeteccion;
-    private boolean notificada;
+    private LocalDateTime fechaCotejo;
+    private String estadoNotificacion;
 
-    public CoincidenciaIA(Long idCoincidencia, Publicacion publicacionPerdida, 
-                          Publicacion publicacionEncontrada, double porcentajeSimilitud) {
-        this.idCoincidencia = idCoincidencia;
-        this.publicacionPerdida = publicacionPerdida;
-        this.publicacionEncontrada = publicacionEncontrada;
+    public CoincidenciaIA(PublicacionPerdido perdida, PublicacionEncontrado encontrada, double porcentajeSimilitud) {
+        this.publicacionPerdida = perdida;
+        this.publicacionEncontrada = encontrada;
         this.porcentajeSimilitud = porcentajeSimilitud;
-        this.fechaDeteccion = LocalDateTime.now();
-        this.notificada = false;
+        this.fechaCotejo = LocalDateTime.now();
+        this.estadoNotificacion = "PENDIENTE";
     }
 
-    public Long getIdCoincidencia() { return idCoincidencia; }
-    public Publicacion getPublicacionPerdida() { return publicacionPerdida; }
-    public Publicacion getPublicacionEncontrada() { return publicacionEncontrada; }
-    public double getPorcentajeSimilitud() { return porcentajeSimilitud; }
-    public boolean isNotificada() { return notificada; }
-    public void setNotificada(boolean notificada) { this.notificada = notificada; }
+    public boolean evaluarUmbral(double umbralMinimo) {
+        return this.porcentajeSimilitud >= umbralMinimo;
+    }
+
+    public Notificacion desencadenarAlertas() {
+        this.estadoNotificacion = "NOTIFICADA";
+        String msg = "¡Posible coincidencia (" + porcentajeSimilitud + "%) detectada para tu mascota!";
+        return new Notificacion(this, publicacionPerdida.getAutor(), msg, "EMAIL_Y_APP");
+    }
 }

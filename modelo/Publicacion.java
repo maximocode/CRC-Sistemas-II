@@ -5,62 +5,53 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Publicacion {
-    private Long idPublicacion;
-    private TipoPublicacion tipo;
-    private EstadoPublicacion estado;
-    private String zonaUbicacion;
-    private LocalDate fechaSuceso;
-    private LocalDateTime fechaCreacion;
-    private String descripcion;
-    private Usuario autor;
-    private Animal animal;
-    private List<Reporte> reportes;
+public abstract class Publicacion {
+    protected Long identificador;
+    protected LocalDateTime fechaPublicacion;
+    protected String estadoAviso;
+    protected Usuario autor;
+    protected Mascota mascota;
+    protected Ubicacion ubicacion;
+    protected List<Fotografia> fotografias;
+    protected List<Reporte> reportes;
 
-    public Publicacion(Long idPublicacion, TipoPublicacion tipo, String zonaUbicacion, 
-                       LocalDate fechaSuceso, String descripcion, Usuario autor, Animal animal) {
-        this.idPublicacion = idPublicacion;
-        this.tipo = tipo;
-        this.estado = EstadoPublicacion.ACTIVA;
-        this.zonaUbicacion = zonaUbicacion;
-        this.fechaSuceso = fechaSuceso;
-        this.fechaCreacion = LocalDateTime.now();
-        this.descripcion = descripcion;
+    public Publicacion(Usuario autor, Mascota mascota, Ubicacion ubicacion) {
         this.autor = autor;
-        this.animal = animal;
+        this.mascota = mascota;
+        this.ubicacion = ubicacion;
+        this.fechaPublicacion = LocalDateTime.now();
+        this.estadoAviso = "ACTIVA";
+        this.fotografias = new ArrayList<>();
         this.reportes = new ArrayList<>();
     }
 
-    
-    public String consultarDatosContacto(Usuario usuarioVisitante) {
-        if (usuarioVisitante != null && usuarioVisitante.isSesionIniciada()) {
-            return "Publicador: " + autor.getNombreCompleto() +
-                   " | Teléfono: " + autor.getTelefono() +
-                   " | Correo: " + autor.getEmail();
-        }
-        return "[Acceso restringido] Inicia sesión en PetFinder para ver los datos de contacto.";
+    public void registrarAviso() {
+        this.estadoAviso = "ACTIVA";
     }
 
-    public void registrarReporte(Reporte reporte) {
+    public void cambiarEstado(String nuevoEstado) {
+        this.estadoAviso = nuevoEstado;
+    }
+
+    public void agregarFotografia(Fotografia foto) {
+        this.fotografias.add(foto);
+    }
+
+    public void recibirReporte(Reporte reporte) {
         this.reportes.add(reporte);
         if (this.reportes.size() >= 3) {
-            this.estado = EstadoPublicacion.OCULTA_POR_REPORTE;
+            cambiarEstado("OCULTA_POR_REPORTE");
         }
     }
 
-    public void marcarComoReunida() {
-        this.estado = EstadoPublicacion.CERRADA;
+    public String exponerDetalle(boolean sesionIniciada) {
+        String contacto = sesionIniciada ? autor.getTelefono() : "Inicia sesión para ver el contacto";
+        return mascota.proveerDatosDescriptivos() + " | Zona: " + ubicacion.getZonaGeograficaBarrio() + " | Contacto: " + contacto;
     }
 
-    
-    public Long getIdPublicacion() { return idPublicacion; }
-    public TipoPublicacion getTipo() { return tipo; }
-    public EstadoPublicacion getEstado() { return estado; }
-    public String getZonaUbicacion() { return zonaUbicacion; }
-    public LocalDate getFechaSuceso() { return fechaSuceso; }
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
-    public String getDescripcion() { return descripcion; }
+    public abstract String getTipoPublicacion();
     public Usuario getAutor() { return autor; }
-    public Animal getAnimal() { return animal; }
-    public List<Reporte> getReportes() { return reportes; }
+    public Mascota getMascota() { return mascota; }
+    public Ubicacion getUbicacion() { return ubicacion; }
+    public List<Fotografia> getFotografias() { return fotografias; }
 }

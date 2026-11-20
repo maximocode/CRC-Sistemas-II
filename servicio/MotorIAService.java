@@ -5,49 +5,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MotorIAService {
-    private List<CoincidenciaIA> historialCoincidencias = new ArrayList<>();
-    private long secuenciaCoincidencia = 1L;
-    private static final double UMBRAL_NOTIFICACION = 70.0;
+    private static final double UMBRAL_SIMILITUD = 70.0;
 
-    public List<CoincidenciaIA> buscarCoincidencias(Publicacion nuevaPub, List<Publicacion> todasLasPublicaciones) {
-        List<CoincidenciaIA> detectadas = new ArrayList<>();
+    public List<CoincidenciaIA> buscarCoincidencias(PublicacionPerdido perdida, List<PublicacionEncontrado> encontradas) {
+        List<CoincidenciaIA> resultados = new ArrayList<>();
 
-        for (Publicacion existente : todasLasPublicaciones) {
-            if (existente.getEstado() != EstadoPublicacion.ACTIVA) continue;
-            if (existente.getTipo() == nuevaPub.getTipo()) continue; // Compara PERDIDO vs ENCONTRADO
+        for (PublicacionEncontrado enc : encontradas) {
+            double similitud = calcularSimilitud(perdida, enc);
+            CoincidenciaIA coincidencia = new CoincidenciaIA(perdida, enc, similitud);
 
-            double similitud = calcularSimilitud(nuevaPub, existente);
-            if (similitud >= UMBRAL_NOTIFICACION) {
-                Publicacion perdida = (nuevaPub.getTipo() == TipoPublicacion.PERDIDO) ? nuevaPub : existente;
-                Publicacion encontrada = (nuevaPub.getTipo() == TipoPublicacion.ENCONTRADO) ? nuevaPub : existente;
-
-                CoincidenciaIA match = new CoincidenciaIA(secuenciaCoincidencia++, perdida, encontrada, similitud);
-                historialCoincidencias.add(match);
-                detectadas.add(match);
-                notificarPosibleCoincidencia(match);
+            if (coincidencia.evaluarUmbral(UMBRAL_SIMILITUD)) {
+                Notificacion alerta = coincidencia.desencadenarAlertas();
+                alerta.avisarAlUsuario();
+                resultados.add(coincidencia);
             }
         }
-        return detectadas;
+        return resultados;
     }
 
-    private void notificarPosibleCoincidencia(CoincidenciaIA match) {
-        match.setNotificada(true);
-        System.out.println("[NOTIFICACIÓN IA] ¡Posible coincidencia (" + match.getPorcentajeSimilitud() + "%)! " +
-                "Aviso Perdido #" + match.getPublicacionPerdida().getIdPublicacion() +
-                " con Aviso Encontrado #" + match.getPublicacionEncontrada().getIdPublicacion() +
-                " -> Notificando a: " + match.getPublicacionPerdida().getAutor().getEmail());
-    }
-
-    private double calcularSimilitud(Publicacion p1, Publicacion p2) {
-        double puntaje = 0.0;
-        Animal a1 = p1.getAnimal();
-        Animal a2 = p2.getAnimal();
-
-        if (a1.getEspecie().equalsIgnoreCase(a2.getEspecie())) puntaje += 35.0;
-        if (a1.getRaza().equalsIgnoreCase(a2.getRaza())) puntaje += 25.0;
-        if (a1.getColor().equalsIgnoreCase(a2.getColor())) puntaje += 20.0;
-        if (p1.getZonaUbicacion().equalsIgnoreCase(p2.getZonaUbicacion())) puntaje += 20.0;
-
-        return puntaje;
+    private double calcularSimilitud(PublicacionPerdido p, PublicacionEncontrado e) {
+        double puntos = 0.0;
+        if (p.getMascota().getEspecie().equalsIgnoreCase(e.getMascota().getEspecie())) puntos += 30.0;
+        if (p.getMascota().getRaza().equalsIgnoreCase(e.getMascota().getRaza())) puntos += 25.0;
+        if (p.getMascota().getTamano().equalsIgnoreCase(e.getMascota().getTamano())) puntos += 15.0;
+        if (p.getUbicacion().getZonaGeograficaBarrio().equalsIgnoreCase(e.getUbicacion().getZonaGeograficaBarrio())) puntos += 30.0;
+        return puntos;
     }
 }
